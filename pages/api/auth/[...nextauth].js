@@ -19,6 +19,8 @@ export default NextAuth({
     error: '/',
     verifyRequest: '/',
   },
+  // vercel に認証追加するのに必要.
+  secret: process.env.NEXT_PUBLIC_SECRET,
   // プロバイダーはグーグル.
   providers: [
     GoogleProvider({
