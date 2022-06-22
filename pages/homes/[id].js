@@ -57,13 +57,14 @@ const ListedHome = (home = null) => {
       }
     })();
   }, [session?.user]);
+  // 削除処理.
+  const [deleting, setDeleting] = useState(false);
 
   const router = useRouter();
   if (router.isFallback) {
     return 'Loading...';
   }
-  // 削除処理.
-  const [deleting, setDeleting] = useState(false);
+
   const deleteHome = async () => {
     let toastId;
     try {
