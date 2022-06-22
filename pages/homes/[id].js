@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const prisma = new PrismaClient();
 
@@ -61,6 +62,25 @@ const ListedHome = (home = null) => {
   if (router.isFallback) {
     return 'Loading...';
   }
+  // 削除処理.
+  const [deleting, setDeleting] = useState(false);
+  const deleteHome = async () => {
+    let toastId;
+    try {
+      toastId = toast.loading('Deleting...');
+      setDeleting(true);
+      // Delete home from DB
+      await axios.delete(`/api/homes/${home.id}`);
+      // Redirect user
+      toast.success('Successfully deleted', { id: toastId });
+      router.push('/homes');
+    } catch (e) {
+      console.log(e);
+      toast.error('Unable to delete home', { id: toastId });
+      setDeleting(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="max-w-screen-lg mx-auto">
@@ -84,9 +104,10 @@ const ListedHome = (home = null) => {
             </ol>
           </div>
           {isOwner ? (
-            <div className="flex items-center space-x-2">
+            <div className="...">
               <button
                 type="button"
+                disabled={deleting}
                 onClick={() => router.push(`/homes/${home.id}/edit`)}
                 className="px-4 py-1 border border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white transition rounded-md disabled:text-gray-800 disabled:bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -95,10 +116,11 @@ const ListedHome = (home = null) => {
 
               <button
                 type="button"
-                onClick={() => null}
+                disabled={deleting}
+                onClick={deleteHome}
                 className="rounded-md border border-rose-500 text-rose-500 hover:bg-rose-500 hover:text-white focus:outline-none transition disabled:bg-rose-500 disabled:text-white disabled:opacity-50 disabled:cursor-not-allowed px-4 py-1"
               >
-                Delete
+                {deleting ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           ) : null}
